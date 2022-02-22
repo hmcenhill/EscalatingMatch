@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     private BoardController currentBoard;
     private int currentLevel = 1;
     private const int maxLevel = 4;
-    private bool peakMode = false;
+    private bool peekMode = false;
 
     public CountdownTimerController CountDown { get => cdc; }
     public Transform DeckPosition { get => deckPosition; }
@@ -31,9 +31,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SetMode(bool peakMode)
+    public void SetMode(bool peekMode)
     {
-        this.peakMode = peakMode;
+        this.peekMode = peekMode;
     }
 
     private void Start()
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
         ClearPlayArea();
 
         currentBoard = Instantiate(Resources.Load<GameObject>($"Prefabs/Boards/Level{level}"), playArea).GetComponent<BoardController>();
-        currentBoard.Init(peakMode);
+        currentBoard.Init(peekMode);
     }
 
     public void StartGame()

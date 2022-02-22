@@ -20,12 +20,12 @@ public class BoardController : MonoBehaviour
 
     private bool canFlip = false;
     private const float flipCooldown = 0.5f;
-    private bool peakMode;
+    private bool peekMode;
 
 
     public void Init(bool enablePeak)
     {
-        peakMode = enablePeak;
+        peekMode = enablePeak;
         cardPositions = new List<Vector2>();
         var cards = cardContainer.GetComponentsInChildren<CardController>();
         cardSize = cards[0].GetComponent<RectTransform>().sizeDelta;
@@ -91,14 +91,14 @@ public class BoardController : MonoBehaviour
         while (countdownTimer > 0)
         {
             GameManager.Instance.CountDown.UpdateDisplay(countdownTimer.ToString());
-            if (peakMode && countdownTimer == 2)
+            if (peekMode && countdownTimer == 2)
             {
                 foreach (var card in cards)
                 {
                     card.Peak();
                 }
             }
-            if (peakMode && countdownTimer == 1)
+            if (peekMode && countdownTimer == 1)
             {
                 foreach (var card in cards)
                 {

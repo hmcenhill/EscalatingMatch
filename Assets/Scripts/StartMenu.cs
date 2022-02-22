@@ -8,7 +8,7 @@ public class StartMenu : MonoBehaviour
         BeginGame();
     }
 
-    public void BeginPeak()
+    public void BeginPeek()
     {
         GameManager.Instance.SetMode(true);
         BeginGame();
