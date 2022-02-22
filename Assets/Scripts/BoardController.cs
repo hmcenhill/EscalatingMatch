@@ -13,22 +13,26 @@ public class BoardController : MonoBehaviour
     private IList<Vector2> cardPositions;
     private int pairsRemaining;
     private Vector2 cardSize;
+    private IList<CardController> cards;
 
     private CardController heldCard;
     private int timeRemaining;
 
     private bool canFlip = false;
-    private const float flipCooldown = 1f;
+    private const float flipCooldown = 0.5f;
+    private bool peakMode;
 
 
-    public void Init()
+    public void Init(bool enablePeak)
     {
+        peakMode = enablePeak;
         cardPositions = new List<Vector2>();
         var cards = cardContainer.GetComponentsInChildren<CardController>();
         cardSize = cards[0].GetComponent<RectTransform>().sizeDelta;
 
         pairsRemaining = cards.Length / 2;
-        timeRemaining = pairsRemaining * 1 + 70;
+        timeRemaining = pairsRemaining * 2 + 10;
+        timer.UpdateDisplay(timeRemaining);
         foreach (var card in cards)
         {
             cardPositions.Add(new Vector2(card.transform.position.x, card.transform.position.y));
@@ -41,6 +45,7 @@ public class BoardController : MonoBehaviour
     public void ChooseCards()
     {
         var deck = new List<CardController>();
+        cards = new List<CardController>();
         var dealFrom = GameManager.Instance.DeckPosition.position;
         var options = Enum.GetValues(typeof(CardName)).Cast<CardName>().ToList();
 
@@ -56,6 +61,8 @@ public class BoardController : MonoBehaviour
 
             deck.Add(first);
             deck.Add(second);
+            cards.Add(first);
+            cards.Add(second);
 
             options.RemoveAt(pick);
         }
@@ -74,11 +81,35 @@ public class BoardController : MonoBehaviour
             deck[pick].FlyToPosition(cardPositions[i]);
             deck.RemoveAt(pick);
         }
-        Begin();
+        StartCoroutine(Begin());
     }
 
-    public void Begin()
+    private IEnumerator Begin()
     {
+        var countdownTimer = 3;
+
+        while (countdownTimer > 0)
+        {
+            GameManager.Instance.CountDown.UpdateDisplay(countdownTimer.ToString());
+            if (peakMode && countdownTimer == 2)
+            {
+                foreach (var card in cards)
+                {
+                    card.Peak();
+                }
+            }
+            if (peakMode && countdownTimer == 1)
+            {
+                foreach (var card in cards)
+                {
+                    card.Hide();
+                }
+            }
+            countdownTimer--;
+            yield return new WaitForSeconds(1f);
+        }
+
+        GameManager.Instance.CountDown.UpdateDisplay("GO");
         RunCountdownTimer();
         canFlip = true;
     }
@@ -92,7 +123,7 @@ public class BoardController : MonoBehaviour
         }
         else
         {
-            timer.UpdateDisplay((int)timeRemaining);
+            timer.UpdateDisplay(timeRemaining);
             StartCoroutine(nameof(CountdownCoroutine));
         }
     }
@@ -174,13 +205,7 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    private void GameOverWin()
-    {
-        Debug.Log("Winner!");
-    }
+    private void GameOverWin() => GameManager.Instance.WinBoard();
 
-    private void GameOverLose()
-    {
-        Debug.Log("OuttaTime!");
-    }
+    private void GameOverLose() => GameManager.Instance.LoseBoard();
 }

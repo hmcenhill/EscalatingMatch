@@ -46,6 +46,11 @@ public class CardController : MonoBehaviour
         }
     }
 
+    public void Peak()
+    {
+        StartCoroutine(FlipCoroutine(faceImage));
+    }
+
     public void Show()
     {
         if (!isFlipped && CanInteract && board.TryFlip())
