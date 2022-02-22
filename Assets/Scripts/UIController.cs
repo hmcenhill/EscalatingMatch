@@ -4,11 +4,5 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
-    [SerializeField] private TimerDisplayController timerDisplayController;
 
-
-    public void Init()
-    {
-        timerDisplayController.Init();
-    }
 }

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -6,16 +5,14 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     public static GameManager Instance { get => instance; }
 
-    [SerializeField] private UIController ui;
+    [SerializeField] private Transform playArea;
+    private BoardController currentBoard;
+    [SerializeField] private int level;
 
-    public event Action<float> TimeUpdate;
-
-
-    private float timeRemaining;
 
     private void Awake()
     {
-        if (instance = null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -32,25 +29,18 @@ public class GameManager : MonoBehaviour
 
     private void Init()
     {
-
-        ui.Init();
+        ClearPlayArea();
+        currentBoard = Instantiate(Resources.Load<GameObject>($"Prefabs/Boards/Level{level}"), playArea).GetComponent<BoardController>();
+        currentBoard.Init();
     }
 
-    private void Update()
+    private void ClearPlayArea()
     {
-        if (timeRemaining > 0)
+        foreach(Transform child in playArea)
         {
-            timeRemaining -= Time.deltaTime;
-            TimeUpdate(timeRemaining);
-        }
-        else
-        {
-            GameOver();
+            Destroy(child.gameObject);
         }
     }
 
-    private void GameOver()
-    {
 
-    }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -8,13 +9,20 @@ public class TimerDisplayController : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI timeRemainingDisplay;
 
-    public void Init()
+    public void UpdateDisplay(int time)
     {
-        GameManager.Instance.TimeUpdate += UpdateDisplay;
-    }
+        var timeSb = new StringBuilder();
 
-    private void UpdateDisplay(float time)
-    {
-        timeRemainingDisplay.text = TimeSpan.FromSeconds(time).ToString("mm:ss");
+        if (time >= 60)
+        {
+            timeSb.Append($"{time / 60}:");
+            time %= 60;
+        }
+        if (timeSb.Length > 0 && time < 10)
+        {
+            timeSb.Append("0");
+        }
+        timeSb.Append(time);
+        timeRemainingDisplay.text = timeSb.ToString();
     }
 }
