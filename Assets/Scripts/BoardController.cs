@@ -41,14 +41,15 @@ public class BoardController : MonoBehaviour
     public void ChooseCards()
     {
         var deck = new List<CardController>();
+        var dealFrom = GameManager.Instance.DeckPosition.position;
         var options = Enum.GetValues(typeof(CardName)).Cast<CardName>().ToList();
 
         for (var i = 0; i < pairsRemaining; i++)
         {
             var pick = new System.Random().Next(options.Count);
 
-            var first = Instantiate(cardPrefab, Vector2.zero, Quaternion.identity, cardContainer).GetComponent<CardController>();
-            var second = Instantiate(cardPrefab, Vector2.zero, Quaternion.identity, cardContainer).GetComponent<CardController>();
+            var first = Instantiate(cardPrefab, dealFrom, Quaternion.identity, cardContainer).GetComponent<CardController>();
+            var second = Instantiate(cardPrefab, dealFrom, Quaternion.identity, cardContainer).GetComponent<CardController>();
 
             first.Init(this, options[pick], cardSize);
             second.Init(this, options[pick], cardSize);
@@ -69,6 +70,7 @@ public class BoardController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
 
             var pick = new System.Random().Next(deck.Count);
+            deck[pick].transform.SetAsLastSibling();
             deck[pick].FlyToPosition(cardPositions[i]);
             deck.RemoveAt(pick);
         }
@@ -141,18 +143,30 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    private void NoMatch(CardController first, CardController second)
+    private void NoMatch(CardController first, CardController second) => StartCoroutine(NoMatchFoundCoroutine(first, second));
+
+    private IEnumerator NoMatchFoundCoroutine(CardController first, CardController second)
     {
+        second.HaltInteraction();
+        first.HaltInteraction();
+        yield return new WaitForSeconds(1f);
         first.Hide();
         second.Hide();
+        yield return new WaitForSeconds(0.5f);
+        first.AllowInteraction();
+        second.AllowInteraction();
     }
 
-    private void MatchFound(CardController first, CardController second)
+    private void MatchFound(CardController first, CardController second) => StartCoroutine(MatchFoundCoroutine(first, second));
+
+    private IEnumerator MatchFoundCoroutine(CardController first, CardController second)
     {
-        Destroy(first.gameObject);
-        Destroy(second.gameObject);
+        first.ReturnToDeck(GameManager.Instance.CompletePosition.position);
+        second.ReturnToDeck(GameManager.Instance.CompletePosition.position);
 
         pairsRemaining--;
+
+        yield return new WaitForSeconds(0.5f);
 
         if (pairsRemaining == 0)
         {

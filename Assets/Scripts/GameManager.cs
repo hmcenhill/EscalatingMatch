@@ -6,9 +6,13 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get => instance; }
 
     [SerializeField] private Transform playArea;
+    [SerializeField] private Transform deckPosition;
+    [SerializeField] private Transform completePosition;
     private BoardController currentBoard;
     [SerializeField] private int level;
 
+    public Transform DeckPosition { get => deckPosition; }
+    public Transform CompletePosition { get => completePosition; }
 
     private void Awake()
     {

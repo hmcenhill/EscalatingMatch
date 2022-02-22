@@ -1,13 +1,17 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CardController : MonoBehaviour
 {
-    private const float flipSpeed = 5f;
+    private const float animTime = 0.8f;
 
     private bool isFlipped;
     private BoardController board;
+
+    private int interactionStoppers;
+    public bool CanInteract { get => interactionStoppers == 0; }
 
     private CardName cardName;
     public CardName Card { get => cardName; }
@@ -29,13 +33,25 @@ public class CardController : MonoBehaviour
 
         faceDisplay.sprite = backImage;
         isFlipped = false;
+        interactionStoppers = 0;
+    }
+
+    public void HaltInteraction() => interactionStoppers++;
+    public void AllowInteraction()
+    {
+        interactionStoppers--;
+        if (interactionStoppers < 0)
+        {
+            interactionStoppers = 0;
+        }
     }
 
     public void Show()
     {
-        if (!isFlipped && board.TryFlip())
+        if (!isFlipped && CanInteract && board.TryFlip())
         {
-            FlipTo(faceImage);
+            StartCoroutine(FlipCoroutine(faceImage));
+            StartCoroutine(JumpCoroutine(this.GetComponent<RectTransform>().sizeDelta.y / 3f, animTime));
             isFlipped = true;
             board.Flip(this);
         }
@@ -43,64 +59,93 @@ public class CardController : MonoBehaviour
 
     public void Hide()
     {
-        FlipTo(backImage);
+        StartCoroutine(FlipCoroutine(backImage));
         isFlipped = false;
     }
 
-    private void FlipTo(Sprite image) => StartCoroutine(FlipCoroutine(image));
+    public void Hop() => StartCoroutine(JumpCoroutine(this.GetComponent<RectTransform>().sizeDelta.y / 8f, animTime * 3f / 8f));
 
     private IEnumerator FlipCoroutine(Sprite image)
     {
+        HaltInteraction();
         var t = this.GetComponent<RectTransform>();
 
-        var returnSize = t.sizeDelta;
-        var flatSize = new Vector2(0f, returnSize.y);
-        var flatSpeed = returnSize.x / (flipSpeed / 2f);
-
-        //var returnPos = t.position;
-        var returnPos = this.transform.position;
-        var jumpToPos = returnPos + new Vector3(0f, returnSize.y / 2, 0f);
-        var jumpSpeed = returnSize.y / (flipSpeed / 2f);
+        var flipSpeed = 8 * 90f / animTime;
 
         var timer = 0f;
-        while (timer < flipSpeed / 2f)
+        while (timer < animTime / 8f)
         {
-            t.sizeDelta = Vector2.MoveTowards(t.sizeDelta, flatSize, flatSpeed * Time.deltaTime);
-            this.transform.position = Vector2.MoveTowards(this.transform.position, jumpToPos, jumpSpeed * Time.deltaTime);
-
+            t.Rotate(Vector3.up, flipSpeed * Time.deltaTime);
             timer += Time.deltaTime;
             yield return null;
         }
 
         faceDisplay.sprite = image;
+        t.eulerAngles = new Vector3(0f, -90f, 0f);
 
-        while (timer < flipSpeed)
+        while (timer < animTime / 4f)
         {
-            t.sizeDelta = Vector2.MoveTowards(t.sizeDelta, returnSize, flatSpeed * Time.deltaTime);
-            this.transform.position = Vector2.MoveTowards(this.transform.position, returnPos, jumpSpeed * Time.deltaTime);
-
+            t.Rotate(Vector3.up, flipSpeed * Time.deltaTime);
             timer += Time.deltaTime;
             yield return null;
         }
+        t.eulerAngles = Vector3.zero;
+        AllowInteraction();
+    }
 
-        t.sizeDelta = returnSize;
+    private IEnumerator JumpCoroutine(float jumpHeight, float jumpTime)
+    {
+        HaltInteraction();
+        var returnPos = this.transform.position;
+        var jumpToPos = returnPos + new Vector3(0f, jumpHeight, 0f);
+        var jumpSpeed = jumpHeight / jumpTime;
+
+        var timer = 0f;
+
+        while (timer < jumpTime / 4)
+        {
+            timer += Time.deltaTime;
+            this.transform.position = Vector2.MoveTowards(this.transform.position, jumpToPos, 2 * jumpSpeed * Time.deltaTime);
+            yield return null;
+        }
+        yield return new WaitForSeconds(jumpTime / 4);
+        while (timer < jumpTime)
+        {
+            timer += Time.deltaTime;
+            this.transform.position = Vector2.MoveTowards(this.transform.position, returnPos, jumpSpeed * Time.deltaTime);
+            yield return null;
+        }
+
         this.transform.position = returnPos;
+        AllowInteraction();
+    }
+
+    public void ReturnToDeck(Vector2 position) => StartCoroutine(ReturnToDeckCoroutine(position));
+
+    private IEnumerator ReturnToDeckCoroutine(Vector2 position)
+    {
+        yield return new WaitForSeconds(animTime + 0.5f);
+        HaltInteraction();
+        Hop();
+        yield return new WaitForSeconds(1f);
+        FlyToPosition(position);
+        Destroy(this.gameObject, 3f);
     }
 
     public void FlyToPosition(Vector2 position)
     {
-        this.transform.position = position;
-
-        var speed = Vector2.Distance(this.transform.position, position) / 5f;
+        var speed = Vector2.Distance(this.transform.position, position);
         StartCoroutine(FlyToCoroutine(position, speed));
     }
 
     private IEnumerator FlyToCoroutine(Vector2 pos, float speed)
     {
+        HaltInteraction();
         while (Vector2.Distance(pos, this.transform.position) > 0.01)
         {
-            this.transform.position = Vector2.MoveTowards(this.transform.position, pos, speed);
+            this.transform.position = Vector2.MoveTowards(this.transform.position, pos, 2 * speed * Time.deltaTime);
             yield return null;
         }
+        AllowInteraction();
     }
 }
