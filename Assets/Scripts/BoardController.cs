@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BoardController : MonoBehaviour
+public class BoardController : MonoBehaviour, ITimed
 {
     [SerializeField] private Transform cardContainer;
-    [SerializeField] private TimerDisplayController timer;
     [SerializeField] private CardController cardPrefab;
 
     private IList<Vector2> cardPositions;
@@ -27,13 +26,14 @@ public class BoardController : MonoBehaviour
     {
         peekMode = enablePeak;
         cardPositions = new List<Vector2>();
-        var cards = cardContainer.GetComponentsInChildren<CardController>();
-        cardSize = cards[0].GetComponent<RectTransform>().sizeDelta;
+        var blanks = cardContainer.GetComponentsInChildren<CardController>();
+        cardSize = blanks[0].GetComponent<RectTransform>().sizeDelta;
 
-        pairsRemaining = cards.Length / 2;
-        timeRemaining = pairsRemaining * 2 + 10;
-        timer.UpdateDisplay(timeRemaining);
-        foreach (var card in cards)
+        pairsRemaining = blanks.Length / 2;
+
+        GameManager.Instance.Timer.SetTimer(blanks.Length * 3, this);
+
+        foreach (var card in blanks)
         {
             cardPositions.Add(new Vector2(card.transform.position.x, card.transform.position.y));
             Destroy(card.gameObject);
@@ -95,7 +95,7 @@ public class BoardController : MonoBehaviour
             {
                 foreach (var card in cards)
                 {
-                    card.Peak();
+                    card.Peek();
                 }
             }
             if (peekMode && countdownTimer == 1)
@@ -110,30 +110,9 @@ public class BoardController : MonoBehaviour
         }
 
         GameManager.Instance.CountDown.UpdateDisplay("GO");
-        RunCountdownTimer();
+        GameManager.Instance.Timer.StartTimer();
         canFlip = true;
     }
-
-    private void RunCountdownTimer()
-    {
-        timeRemaining--;
-        if (timeRemaining < 0)
-        {
-            GameOverLose();
-        }
-        else
-        {
-            timer.UpdateDisplay(timeRemaining);
-            StartCoroutine(nameof(CountdownCoroutine));
-        }
-    }
-
-    private IEnumerator CountdownCoroutine()
-    {
-        yield return new WaitForSeconds(1f);
-        RunCountdownTimer();
-    }
-
 
     public bool TryFlip()
     {
@@ -205,7 +184,13 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    private void GameOverWin() => GameManager.Instance.WinBoard();
+    private void GameOverWin()
+    {
+        GameManager.Instance.Timer.CancelTimer();
+        GameManager.Instance.WinBoard();
+    }
 
     private void GameOverLose() => GameManager.Instance.LoseBoard();
+
+    public void TimesUp() => GameOverLose();
 }

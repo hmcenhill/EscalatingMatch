@@ -46,7 +46,7 @@ public class CardController : MonoBehaviour
         }
     }
 
-    public void Peak()
+    public void Peek()
     {
         StartCoroutine(FlipCoroutine(faceImage));
     }

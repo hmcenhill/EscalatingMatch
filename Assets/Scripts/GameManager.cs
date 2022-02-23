@@ -8,14 +8,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform playArea;
     [SerializeField] private Transform deckPosition;
     [SerializeField] private Transform completePosition;
-    [SerializeField] CountdownTimerController cdc;
+    [SerializeField] private CountdownTimerController cdc;
+    [SerializeField] private GameTimerController timer;
 
     private BoardController currentBoard;
     private int currentLevel = 1;
-    private const int maxLevel = 4;
+    private const int maxLevel = 5;
     private bool peekMode = false;
 
     public CountdownTimerController CountDown { get => cdc; }
+    public GameTimerController Timer { get => timer; }
     public Transform DeckPosition { get => deckPosition; }
     public Transform CompletePosition { get => completePosition; }
 
@@ -31,11 +33,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SetMode(bool peekMode)
-    {
-        this.peekMode = peekMode;
-    }
-
     private void Start()
     {
         Init();
@@ -44,10 +41,15 @@ public class GameManager : MonoBehaviour
     private void Init()
     {
         cdc.Init();
-        MainMenu();
+        LoadMainMenu();
     }
 
-    public void MainMenu()
+    public void SetMode(bool peekMode)
+    {
+        this.peekMode = peekMode;
+    }
+
+    public void LoadMainMenu()
     {
         ClearPlayArea();
         Instantiate(Resources.Load<GameObject>($"Prefabs/StartMenu"), playArea);
@@ -77,10 +79,7 @@ public class GameManager : MonoBehaviour
         LoadLevel(currentLevel);
     }
 
-    public void RepeatLevel()
-    {
-        LoadLevel(currentLevel);
-    }
+    public void RepeatLevel() => LoadLevel(currentLevel);
 
     private void ClearPlayArea()
     {

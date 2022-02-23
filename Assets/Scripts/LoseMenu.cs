@@ -9,6 +9,6 @@ public class LoseMenu : MonoBehaviour
 
     public void MainMenu()
     {
-        GameManager.Instance.MainMenu();
+        GameManager.Instance.LoadMainMenu();
     }
 }

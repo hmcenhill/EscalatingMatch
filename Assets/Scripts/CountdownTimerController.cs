@@ -28,6 +28,4 @@ public class CountdownTimerController : MonoBehaviour
         yield return new WaitForSeconds(0.8f);
         Hide();
     }
-
-
 }
