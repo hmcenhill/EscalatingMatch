@@ -90,7 +90,7 @@ public class BoardController : MonoBehaviour, ITimed
 
         while (countdownTimer > 0)
         {
-            GameManager.Instance.CountDown.UpdateDisplay(countdownTimer.ToString());
+            GameManager.Instance.CountDown.CountdownDisplay(countdownTimer.ToString());
             if (peekMode && countdownTimer == 2)
             {
                 foreach (var card in cards)
@@ -109,7 +109,7 @@ public class BoardController : MonoBehaviour, ITimed
             yield return new WaitForSeconds(1f);
         }
 
-        GameManager.Instance.CountDown.UpdateDisplay("GO");
+        GameManager.Instance.CountDown.GoDisplay("GO");
         GameManager.Instance.Timer.StartTimer();
         canFlip = true;
     }
