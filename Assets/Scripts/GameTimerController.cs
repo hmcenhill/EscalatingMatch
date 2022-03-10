@@ -18,11 +18,19 @@ public class GameTimerController : MonoBehaviour
 
     public void SetTimer(int time, ITimed who)
     {
+        Activate();
         whoWantsToKnow = who;
         startTime = time;
         timeRemaining = startTime;
 
         UpdateDisplay(timeRemaining);
+    }
+
+    public void Activate() => this.gameObject.SetActive(true);
+    public void Deactivate()
+    {
+        CancelTimer();
+        this.gameObject.SetActive(false);
     }
 
     public void StartTimer() => StartCoroutine(RunTimer());

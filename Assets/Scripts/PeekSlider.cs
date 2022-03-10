@@ -9,10 +9,10 @@ public class PeekSlider : MonoBehaviour
     [SerializeField] private Sprite offSprite;
     [SerializeField] private Sprite onSprite;
 
-    private void Start()
+    public void Init()
     {
         sliderImage = this.GetComponent<Image>();
-        peekOn = false;
+        peekOn = GameManager.Instance.PeekMode;
         SetImage();
     }
 

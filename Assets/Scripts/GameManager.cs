@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private UIController ui;
     [SerializeField] private Transform playArea;
+    [SerializeField] private Transform popupArea;
     [SerializeField] private Transform deckPosition;
     [SerializeField] private Transform completePosition;
     [SerializeField] private CountdownTimerController cdc;
@@ -16,6 +17,7 @@ public class GameManager : MonoBehaviour
     private int currentLevel = 1;
     private const int maxLevel = 5;
     private bool peekMode = false;
+    public bool PeekMode { get => peekMode; }
 
     public CountdownTimerController CountDown { get => cdc; }
     public GameTimerController Timer { get => timer; }
@@ -84,8 +86,13 @@ public class GameManager : MonoBehaviour
 
     private void ClearPlayArea()
     {
+        Timer.Deactivate();
         EndDimBase();
         foreach (Transform child in playArea)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in popupArea)
         {
             Destroy(child.gameObject);
         }
@@ -99,13 +106,13 @@ public class GameManager : MonoBehaviour
     {
         ClearPlayArea();
         DimBase();
-        Instantiate(Resources.Load<WinMenu>($"Prefabs/Win"), playArea).SetValues(timer.TimeElapsed.ToString(), currentBoard.FlipsTaken.ToString());
+        Instantiate(Resources.Load<WinMenu>($"Prefabs/Win"), popupArea).SetValues(timer.TimeElapsed.ToString(), currentBoard.FlipsTaken.ToString());
     }
 
     public void LoseBoard()
     {
         ClearPlayArea();
         DimBase();
-        Instantiate(Resources.Load<LoseMenu>($"Prefabs/Lose"), playArea);
+        Instantiate(Resources.Load<LoseMenu>($"Prefabs/Lose"), popupArea);
     }
 }
