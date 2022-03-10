@@ -14,6 +14,8 @@ public class GameTimerController : MonoBehaviour
     private float startTime;
     private float timeRemaining;
 
+    public int TimeElapsed { get => (int)(startTime - timeRemaining); }
+
     public void SetTimer(int time, ITimed who)
     {
         whoWantsToKnow = who;

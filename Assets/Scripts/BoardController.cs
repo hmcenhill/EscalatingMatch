@@ -15,11 +15,13 @@ public class BoardController : MonoBehaviour, ITimed
     private IList<CardController> cards;
 
     private CardController heldCard;
-    private int timeRemaining;
 
     private bool canFlip = false;
     private const float flipCooldown = 0.5f;
     private bool peekMode;
+
+    private int flipsTaken;
+    public int FlipsTaken { get => flipsTaken; }
 
 
     public void Init(bool enablePeak)
@@ -30,6 +32,7 @@ public class BoardController : MonoBehaviour, ITimed
         cardSize = blanks[0].GetComponent<RectTransform>().sizeDelta;
 
         pairsRemaining = blanks.Length / 2;
+        flipsTaken = 0;
 
         GameManager.Instance.Timer.SetTimer(blanks.Length * 3, this);
 
@@ -118,6 +121,7 @@ public class BoardController : MonoBehaviour, ITimed
     {
         if (canFlip)
         {
+            flipsTaken++;
             canFlip = false;
             StartFlipCooldown();
             return true;

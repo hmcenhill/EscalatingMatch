@@ -92,12 +92,12 @@ public class GameManager : MonoBehaviour
     public void WinBoard()
     {
         ClearPlayArea();
-        Instantiate(Resources.Load<GameObject>($"Prefabs/Win"), playArea);
+        Instantiate(Resources.Load<WinMenu>($"Prefabs/Win"), playArea).SetValues(timer.TimeElapsed.ToString(), currentBoard.FlipsTaken.ToString());
     }
 
     public void LoseBoard()
     {
         ClearPlayArea();
-        Instantiate(Resources.Load<GameObject>($"Prefabs/Lose"), playArea);
+        Instantiate(Resources.Load<LoseMenu>($"Prefabs/Lose"), playArea);
     }
 }
