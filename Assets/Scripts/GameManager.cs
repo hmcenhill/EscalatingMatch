@@ -5,6 +5,7 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     public static GameManager Instance { get => instance; }
 
+    [SerializeField] private UIController ui;
     [SerializeField] private Transform playArea;
     [SerializeField] private Transform deckPosition;
     [SerializeField] private Transform completePosition;
@@ -83,21 +84,28 @@ public class GameManager : MonoBehaviour
 
     private void ClearPlayArea()
     {
+        EndDimBase();
         foreach (Transform child in playArea)
         {
             Destroy(child.gameObject);
         }
     }
 
+    public void DimBase() => ui.Dim();
+
+    public void EndDimBase() => ui.Undim();
+
     public void WinBoard()
     {
         ClearPlayArea();
+        DimBase();
         Instantiate(Resources.Load<WinMenu>($"Prefabs/Win"), playArea).SetValues(timer.TimeElapsed.ToString(), currentBoard.FlipsTaken.ToString());
     }
 
     public void LoseBoard()
     {
         ClearPlayArea();
+        DimBase();
         Instantiate(Resources.Load<LoseMenu>($"Prefabs/Lose"), playArea);
     }
 }
