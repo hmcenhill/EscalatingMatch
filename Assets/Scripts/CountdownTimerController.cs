@@ -60,7 +60,6 @@ public class CountdownTimerController : MonoBehaviour
             rect.localScale = Vector3.one * currentScale;
             yield return null;
         }
-        Debug.Log($"Done!");
     }
 
     private IEnumerator AnimateGo(string s)
@@ -83,12 +82,6 @@ public class CountdownTimerController : MonoBehaviour
 
             yield return null;
         }
-
-        Debug.Log("Go Done!");
-
         Hide();
     }
-
-
-
 }
